@@ -1,14 +1,3 @@
-// from_str.rs
-//
-// This is similar to from_into.rs, but this time we'll implement `FromStr` and
-// return errors instead of falling back to a default value. Additionally, upon
-// implementing FromStr, you can use the `parse` method on strings to generate
-// an object of the implementor type. You can read more about it at
-// https://doc.rust-lang.org/std/str/trait.FromStr.html
-//
-// Execute `rustlings hint from_str` or use the `hint` watch subcommand for a
-// hint.
-
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -18,40 +7,48 @@ struct Person {
     age: usize,
 }
 
-// We will use this error type for the `FromStr` implementation.
+// 定义错误类型
 #[derive(Debug, PartialEq)]
 enum ParsePersonError {
-    // Empty input string
+    // 空输入字符串
     Empty,
-    // Incorrect number of fields
+    // 字段数不对
     BadLen,
-    // Empty name field
+    // 名字字段为空
     NoName,
-    // Wrapped error from parse::<usize>()
+    // age 字段解析错误
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
-
-// Steps:
-// 1. If the length of the provided string is 0, an error should be returned
-// 2. Split the given string on the commas present in it
-// 3. Only 2 elements should be returned from the split, otherwise return an
-//    error
-// 4. Extract the first element from the split operation and use it as the name
-// 5. Extract the other element from the split operation and parse it into a
-//    `usize` as the age with something like `"4".parse::<usize>()`
-// 6. If while extracting the name and the age something goes wrong, an error
-//    should be returned
-// If everything goes well, then return a Result of a Person object
-//
-// As an aside: `Box<dyn Error>` implements `From<&'_ str>`. This means that if
-// you want to return a string error message, you can do so via just using
-// return `Err("my error message".into())`.
-
+// 实现 FromStr 特性
 impl FromStr for Person {
     type Err = ParsePersonError;
+    
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        // 如果字符串为空
+        if s.is_empty() {
+            return Err(ParsePersonError::Empty);
+        }
+
+        // 以逗号分割字符串
+        let parts: Vec<&str> = s.split(',').collect();
+        
+        // 确保分割后有两个部分
+        if parts.len() != 2 {
+            return Err(ParsePersonError::BadLen);
+        }
+
+        // 检查名字是否为空
+        let name = parts[0].to_string();
+        if name.is_empty() {
+            return Err(ParsePersonError::NoName);
+        }
+
+        // 解析年龄部分
+        let age = parts[1].parse::<usize>().map_err(ParsePersonError::ParseInt)?;
+
+        // 返回 Person 对象
+        Ok(Person { name, age })
     }
 }
 

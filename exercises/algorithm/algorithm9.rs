@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +23,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![T::default()], // 索引 0 处保留不用
             comparator,
         }
     }
@@ -37,7 +37,17 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        // 添加元素到末尾
+        self.items.push(value);
+        self.count += 1;
+
+        // 上浮新添加的元素以保持堆的性质
+        let mut idx = self.count;
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            let parent = self.parent_idx(idx);
+            self.items.swap(idx, parent);
+            idx = self.parent_idx(idx);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -53,12 +63,30 @@ where
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
-        self.left_child_idx(idx) + 1
+        idx * 2 + 1
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+
+        // 如果没有右孩子或者左孩子更优，则返回左孩子，否则返回右孩子
+        if right > self.count || (self.comparator)(&self.items[left], &self.items[right]) {
+            left
+        } else {
+            right
+        }
+    }
+
+    fn sink(&mut self, mut idx: usize) {
+        // 下沉操作，用于保持堆的性质
+        while self.children_present(idx) {
+            let child_idx = self.smallest_child_idx(idx);
+            if (self.comparator)(&self.items[child_idx], &self.items[idx]) {
+                self.items.swap(child_idx, idx);
+            }
+            idx = child_idx;
+        }
     }
 }
 
@@ -84,8 +112,17 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            None
+        } else {
+            // 提取堆顶元素
+            let root = self.items.swap_remove(1); // 移除堆顶，并用最后一个元素填补
+            self.count -= 1;
+            if !self.is_empty() {
+                self.sink(1); // 下沉新的堆顶元素以保持堆的性质
+            }
+            Some(root)
+        }
     }
 }
 

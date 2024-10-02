@@ -5,13 +5,11 @@
 // Execute `rustlings hint strings1` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
-
 fn main() {
     let answer = current_favorite_color();
     println!("My current favorite color is {}", answer);
 }
 
 fn current_favorite_color() -> String {
-    "blue"
+    "blue".to_string()  // 使用 to_string() 将 &str 转换为 String
 }
