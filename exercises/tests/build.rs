@@ -13,5 +13,5 @@ fn main() {
 
     // 在 tests8 中，我们启用 "pass" 特性标志来使测试提前返回
     // 通过 `println!` 输出到标准输出。
-    println!("cargo:rustc-cfg=feature = "pass",");
+    println!("cargo:rustc-cfg=feature=\"pass\"");
 }
